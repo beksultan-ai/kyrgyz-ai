@@ -1,73 +1,113 @@
 <!DOCTYPE html>
 <html lang="ky">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KYRGYZ AI — Your World. Your AI.</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #080d18;
-      color: white;
-      text-align: center;
-    }
-    header { padding: 25px 15px; }
-    .logo {
-      color: #55d6be;
-      font-size: 27px;
-      font-weight: bold;
-      letter-spacing: 2px;
-    }
-    main { padding: 65px 20px; }
-    h1 { font-size: 38px; margin-bottom: 15px; }
-    h1 span { color: #55d6be; }
-    p {
-      color: #b8c3d6;
-      font-size: 17px;
-      line-height: 1.6;
-    }
-    .button {
-      display: inline-block;
-      margin-top: 25px;
-      padding: 14px 28px;
-      background: #55d6be;
-      color: #07111b;
-      text-decoration: none;
-      border-radius: 9px;
-      font-weight: bold;
-    }
-    footer {
-      margin-top: 70px;
-      padding: 20px;
-      color: #8290a5;
-      font-size: 13px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KYRGYZ AI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080d18;color:white;font-family:Arial,sans-serif}
+header{padding:22px 6%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+.logo{font-size:25px;font-weight:bold;color:#55d6be;letter-spacing:2px}
+.languages button{background:#172235;color:white;border:1px solid #34445d;padding:9px 13px;border-radius:7px;margin-left:5px;cursor:pointer}
+.languages button.active{background:#55d6be;color:#07111b}
+main{text-align:center;padding:65px 20px 35px}
+h1{font-size:clamp(38px,8vw,65px);margin:15px 0}
+h1 span{color:#55d6be}
+p{color:#b8c3d6;font-size:17px;line-height:1.7}
+.cta{display:inline-block;margin-top:20px;padding:14px 25px;background:#55d6be;color:#07111b;text-decoration:none;border-radius:9px;font-weight:bold}
+section{max-width:950px;margin:35px auto;padding:20px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.card{background:#111c2e;border:1px solid #263650;padding:25px;border-radius:14px}
+.card h3{color:#55d6be}
+.chat{max-width:600px;margin:35px auto;background:#111c2e;padding:25px;border-radius:14px}
+.chatbox{padding:15px;background:#080d18;border-radius:9px;color:#b8c3d6}
+footer{text-align:center;padding:30px;color:#8290a5;font-size:13px}
+</style>
 </head>
 <body>
-  <header>
-    <div class="logo">KYRGYZ AI</div>
-  </header>
+<header>
+<div class="logo">KYRGYZ AI</div>
+<div class="languages">
+<button class="active" onclick="setLang('ky',this)">KG</button>
+<button onclick="setLang('ru',this)">RU</button>
+<button onclick="setLang('en',this)">EN</button>
+</div>
+</header>
 
-  <main>
-    <h1>Your World.<br><span>Your AI.</span></h1>
-    <p>
-      Кыргызстандан дүйнөгө багытталган
-      жасалма интеллект платформасы.
-    </p>
-    <p>
-      Бизнестин жана адамдардын күнүмдүк
-      иштерин AI менен жеңилдетебиз.
-    </p>
-    <a class="button" href="mailto:info@kyrgyz.ai">
-      Көп өтпөй ишке кирет
-    </a>
-  </main>
+<main>
+<h1>Your World.<br><span>Your AI.</span></h1>
+<p id="intro">Кыргызстандан дүйнөгө багытталган жасалма интеллект платформасы.</p>
+<p id="description">Бизнестин жана адамдардын күнүмдүк иштерин AI менен жеңилдетебиз.</p>
+<a class="cta" href="#assistant" id="start">Биз жөнүндө</a>
+</main>
 
-  <footer>
-    © 2026 KYRGYZ AI. All rights reserved.
-  </footer>
+<section>
+<div class="cards">
+<div class="card">
+<h3 id="businessTitle">Компаниялар үчүн</h3>
+<p id="businessText">Бизнес процесстерин AI менен жеңилдетүү.</p>
+</div>
+<div class="card">
+<h3 id="peopleTitle">Жеке колдонуучулар үчүн</h3>
+<p id="peopleText">Күнүмдүк иштерде акылдуу жардамчы.</p>
+</div>
+</div>
+</section>
+
+<section class="chat" id="assistant">
+<h2 id="assistantTitle">KYRGYZ AI жардамчысы</h2>
+<div class="chatbox" id="chatText">
+AI жардамчыбыз даярдалып жатат. Жакында бул жерден сүйлөшө аласыз.
+</div>
+</section>
+
+<footer>© 2026 KYRGYZ AI. All rights reserved.</footer>
+
+<script>
+const translations={
+ky:{
+intro:"Кыргызстандан дүйнөгө багытталган жасалма интеллект платформасы.",
+description:"Бизнестин жана адамдардын күнүмдүк иштерин AI менен жеңилдетебиз.",
+start:"Биз жөнүндө",
+businessTitle:"Компаниялар үчүн",
+businessText:"Бизнес процесстерин AI менен жеңилдетүү.",
+peopleTitle:"Жеке колдонуучулар үчүн",
+peopleText:"Күнүмдүк иштерде акылдуу жардамчы.",
+assistantTitle:"KYRGYZ AI жардамчысы",
+chatText:"AI жардамчыбыз даярдалып жатат. Жакында бул жерден сүйлөшө аласыз."
+},
+ru:{
+intro:"Платформа искусственного интеллекта из Кыргызстана для всего мира.",
+description:"Упрощаем повседневные задачи бизнеса и людей с помощью ИИ.",
+start:"О нас",
+businessTitle:"Для компаний",
+businessText:"Упрощение бизнес-процессов с помощью ИИ.",
+peopleTitle:"Для пользователей",
+peopleText:"Умный помощник для повседневных задач.",
+assistantTitle:"Помощник KYRGYZ AI",
+chatText:"Наш ИИ-помощник находится в разработке. Скоро вы сможете общаться здесь."
+},
+en:{
+intro:"An artificial intelligence platform from Kyrgyzstan for the world.",
+description:"We make everyday tasks easier for businesses and people with AI.",
+start:"About us",
+businessTitle:"For companies",
+businessText:"Simplify business processes with AI.",
+peopleTitle:"For individuals",
+peopleText:"A smart assistant for everyday tasks.",
+assistantTitle:"KYRGYZ AI Assistant",
+chatText:"Our AI assistant is under development. You will be able to chat here soon."
+}
+};
+function setLang(lang,button){
+document.documentElement.lang=lang;
+for(const id in translations[lang]){
+document.getElementById(id).textContent=translations[lang][id];
+}
+document.querySelectorAll(".languages button").forEach(b=>b.classList.remove("active"));
+button.classList.add("active");
+}
+</script>
 </body>
 </html>
