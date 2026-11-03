@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ky">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KYRGYZ AI</title>
+<title>KYRGYZ AI — Your World. Your AI.</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#080d18;color:white;font-family:Arial,sans-serif}
@@ -20,8 +21,16 @@ section{max-width:950px;margin:35px auto;padding:20px}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
 .card{background:#111c2e;border:1px solid #263650;padding:25px;border-radius:14px}
 .card h3{color:#55d6be}
-.chat{max-width:600px;margin:35px auto;background:#111c2e;padding:25px;border-radius:14px}
-.chatbox{padding:15px;background:#080d18;border-radius:9px;color:#b8c3d6}
+.chat{max-width:650px;margin:35px auto;background:#111c2e;padding:25px;border-radius:14px}
+.messages{height:300px;overflow-y:auto;padding:15px;background:#080d18;border-radius:9px;margin:15px 0}
+.message{padding:11px 14px;margin:9px 0;border-radius:10px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.user{background:#17483f;margin-left:35px}
+.bot{background:#172235;margin-right:35px;color:#e5edf7}
+.chatform{display:flex;gap:8px}
+.chatform input{flex:1;min-width:0;padding:14px;border-radius:8px;border:1px solid #34445d;background:#080d18;color:white;font-size:16px}
+.chatform button{padding:12px 18px;background:#55d6be;color:#07111b;border:0;border-radius:8px;font-weight:bold}
+.chatform button:disabled{opacity:.5}
+#status{font-size:13px;min-height:20px}
 footer{text-align:center;padding:30px;color:#8290a5;font-size:13px}
 </style>
 </head>
@@ -39,7 +48,7 @@ footer{text-align:center;padding:30px;color:#8290a5;font-size:13px}
 <h1>Your World.<br><span>Your AI.</span></h1>
 <p id="intro">Кыргызстандан дүйнөгө багытталган жасалма интеллект платформасы.</p>
 <p id="description">Бизнестин жана адамдардын күнүмдүк иштерин AI менен жеңилдетебиз.</p>
-<a class="cta" href="#assistant" id="start">Биз жөнүндө</a>
+<a class="cta" href="#assistant" id="start">AI менен сүйлөшүү</a>
 </main>
 
 <section>
@@ -57,57 +66,128 @@ footer{text-align:center;padding:30px;color:#8290a5;font-size:13px}
 
 <section class="chat" id="assistant">
 <h2 id="assistantTitle">KYRGYZ AI жардамчысы</h2>
-<div class="chatbox" id="chatText">
-AI жардамчыбыз даярдалып жатат. Жакында бул жерден сүйлөшө аласыз.
-</div>
+<p id="welcome">Саламатсызбы! Мен KYRGYZ AI жардамчысымын. Сурооңузду жазыңыз.</p>
+<div class="messages" id="messages" aria-live="polite"></div>
+<form class="chatform" id="chatForm">
+<input id="userInput" type="text" maxlength="1500" placeholder="Сурооңузду жазыңыз..." required>
+<button id="sendButton" type="submit">Жөнөтүү</button>
+</form>
+<p id="status"></p>
 </section>
 
 <footer>© 2026 KYRGYZ AI. All rights reserved.</footer>
 
 <script>
-const translations={
+const API_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/chat";
+let currentLang = "ky";
+
+const translations = {
 ky:{
 intro:"Кыргызстандан дүйнөгө багытталган жасалма интеллект платформасы.",
 description:"Бизнестин жана адамдардын күнүмдүк иштерин AI менен жеңилдетебиз.",
-start:"Биз жөнүндө",
+start:"AI менен сүйлөшүү",
 businessTitle:"Компаниялар үчүн",
 businessText:"Бизнес процесстерин AI менен жеңилдетүү.",
 peopleTitle:"Жеке колдонуучулар үчүн",
 peopleText:"Күнүмдүк иштерде акылдуу жардамчы.",
 assistantTitle:"KYRGYZ AI жардамчысы",
-chatText:"AI жардамчыбыз даярдалып жатат. Жакында бул жерден сүйлөшө аласыз."
+welcome:"Саламатсызбы! Мен KYRGYZ AI жардамчысымын. Сурооңузду жазыңыз.",
+placeholder:"Сурооңузду жазыңыз...",
+send:"Жөнөтүү",
+thinking:"Жооп даярдалып жатат...",
+error:"Ката кетти. Кайра аракет кылыңыз."
 },
 ru:{
 intro:"Платформа искусственного интеллекта из Кыргызстана для всего мира.",
 description:"Упрощаем повседневные задачи бизнеса и людей с помощью ИИ.",
-start:"О нас",
+start:"Общаться с ИИ",
 businessTitle:"Для компаний",
 businessText:"Упрощение бизнес-процессов с помощью ИИ.",
 peopleTitle:"Для пользователей",
 peopleText:"Умный помощник для повседневных задач.",
 assistantTitle:"Помощник KYRGYZ AI",
-chatText:"Наш ИИ-помощник находится в разработке. Скоро вы сможете общаться здесь."
+welcome:"Здравствуйте! Я помощник KYRGYZ AI. Напишите свой вопрос.",
+placeholder:"Напишите свой вопрос...",
+send:"Отправить",
+thinking:"Готовлю ответ...",
+error:"Произошла ошибка. Попробуйте ещё раз."
 },
 en:{
 intro:"An artificial intelligence platform from Kyrgyzstan for the world.",
 description:"We make everyday tasks easier for businesses and people with AI.",
-start:"About us",
+start:"Chat with AI",
 businessTitle:"For companies",
 businessText:"Simplify business processes with AI.",
 peopleTitle:"For individuals",
 peopleText:"A smart assistant for everyday tasks.",
 assistantTitle:"KYRGYZ AI Assistant",
-chatText:"Our AI assistant is under development. You will be able to chat here soon."
+welcome:"Hello! I am the KYRGYZ AI assistant. Write your question.",
+placeholder:"Write your question...",
+send:"Send",
+thinking:"Preparing an answer...",
+error:"Something went wrong. Please try again."
 }
 };
+
 function setLang(lang,button){
+currentLang=lang;
 document.documentElement.lang=lang;
 for(const id in translations[lang]){
-document.getElementById(id).textContent=translations[lang][id];
+const element=document.getElementById(id);
+if(element) element.textContent=translations[lang][id];
 }
+document.getElementById("userInput").placeholder=translations[lang].placeholder;
 document.querySelectorAll(".languages button").forEach(b=>b.classList.remove("active"));
 button.classList.add("active");
 }
+
+function addMessage(text,type){
+const div=document.createElement("div");
+div.className="message "+type;
+div.textContent=text;
+const box=document.getElementById("messages");
+box.appendChild(div);
+box.scrollTop=box.scrollHeight;
+}
+
+document.getElementById("chatForm").addEventListener("submit",async function(event){
+event.preventDefault();
+
+const input=document.getElementById("userInput");
+const button=document.getElementById("sendButton");
+const status=document.getElementById("status");
+const message=input.value.trim();
+
+if(!message)return;
+
+addMessage(message,"user");
+input.value="";
+button.disabled=true;
+status.textContent=translations[currentLang].thinking;
+
+try{
+const response=await fetch(API_URL,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({message:message})
+});
+
+const data=await response.json();
+
+if(!response.ok || !data.reply){
+throw new Error("API error");
+}
+
+addMessage(data.reply,"bot");
+status.textContent="";
+
+}catch(error){
+status.textContent=translations[currentLang].error;
+}
+
+button.disabled=false;
+input.focus();
+});
 </script>
 </body>
 </html>
