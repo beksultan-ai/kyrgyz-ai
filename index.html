@@ -164,11 +164,21 @@
         </div>
       </div>
 
-      <form class="chat-form" id="chatForm">
-        <input id="userInput" type="text" maxlength="1500"
-          placeholder="Сурооңузду жазыңыз..." required>
-        <button id="sendButton" type="submit" aria-label="Send">↑</button>
-      </form>
+      <div class="chat-tools">
+  <button type="button" id="voiceBtn" class="voice-button">
+    🎙️
+  </button>
+
+  <form class="chat-form" id="chatForm">
+    <input id="userInput" type="text" maxlength="1500"
+      placeholder="Сурооңузду жазыңыз..." required>
+    <button id="sendButton" type="submit">↑</button>
+  </form>
+</div>
+
+<p id="voiceStatus" class="chat-status">
+  Микрофонду басып үн менен сүйлөшүңүз
+</p>
       <p class="chat-status" id="status"></p>
       <div class="chat-disclaimer" id="disclaimer">KYRGYZ AI · Your World. Your AI.</div>
     </div>
