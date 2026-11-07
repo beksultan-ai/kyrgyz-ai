@@ -166,6 +166,7 @@ function startVoice() {
   recognition.start();
 }
 
+
 function speakText(text) {
   if (!("speechSynthesis" in window)) return;
 
@@ -177,8 +178,9 @@ function speakText(text) {
     ? "ky-KG"
     : currentLang === "ru" ? "ru-RU" : "en-US";
 
-  speech.rate = 1;
-  speech.pitch = 1;
+  speech.rate = 0.85;
+  speech.pitch = 0.95;
+  speech.volume = 1;
 
   window.speechSynthesis.speak(speech);
 }
