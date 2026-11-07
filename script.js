@@ -113,6 +113,76 @@ const translations = {
 
 let currentLang = "ky";
 
+let recognition = null;
+
+function startVoice() {
+  const status = document.getElementById("voiceStatus");
+  const input = document.getElementById("userInput");
+  const voiceBtn = document.getElementById("voiceBtn");
+
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    status.textContent = "Браузер үн таанууну колдобойт.";
+    return;
+  }
+
+  if (recognition) {
+    recognition.stop();
+    recognition = null;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = currentLang === "ky"
+    ? "ky-KG"
+    : currentLang === "ru" ? "ru-RU" : "en-US";
+
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = () => {
+    status.textContent = "🎙️ Сүйлөп баштаңыз...";
+    voiceBtn.classList.add("recording");
+  };
+
+  recognition.onresult = (event) => {
+    const spokenText = event.results[0][0].transcript;
+    input.value = spokenText;
+    status.textContent = "Үн текстке айланды. Жөнөтүлүүдө...";
+
+    document.getElementById("chatForm").requestSubmit();
+  };
+
+  recognition.onerror = () => {
+    status.textContent = "Үн таанууда ката кетти. Кайра аракет кылыңыз.";
+  };
+
+  recognition.onend = () => {
+    voiceBtn.classList.remove("recording");
+    recognition = null;
+  };
+
+  recognition.start();
+}
+
+function speakText(text) {
+  if (!("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(text);
+
+  speech.lang = currentLang === "ky"
+    ? "ky-KG"
+    : currentLang === "ru" ? "ru-RU" : "en-US";
+
+  speech.rate = 1;
+  speech.pitch = 1;
+
+  window.speechSynthesis.speak(speech);
+}
+
 function setLang(lang, button) {
   if (!translations[lang]) return;
 
@@ -206,6 +276,7 @@ async function sendMessage(event) {
     }
 
     addMessage(reply, "bot");
+    speakText(reply);
     status.textContent = "";
   } catch (error) {
     console.error("KYRGYZ AI error:", error);
@@ -224,4 +295,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   setLang("ky");
+  const voiceBtn = document.getElementById("voiceBtn");
+
+if (voiceBtn) {
+  voiceBtn.addEventListener("click", startVoice);
+}
 });
