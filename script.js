@@ -167,24 +167,41 @@ function startVoice() {
 }
 
 
-function speakText(text) {
-  if (!("speechSynthesis" in window)) return;
+async function speakText(text) {
+  try {
+    window.speechSynthesis.cancel();
 
-  window.speechSynthesis.cancel();
+    const response = await fetch(
+      "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/speak",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          text: text
+        })
+      }
+    );
 
-  const speech = new SpeechSynthesisUtterance(text);
+    if (!response.ok) {
+      throw new Error("Үн серверинде ката: " + response.status);
+    }
 
-  speech.lang = currentLang === "ky"
-    ? "ky-KG"
-    : currentLang === "ru" ? "ru-RU" : "en-US";
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioUrl);
 
-  speech.rate = 0.85;
-  speech.pitch = 0.95;
-  speech.volume = 1;
+    audio.onended = () => URL.revokeObjectURL(audioUrl);
+    audio.onerror = () => URL.revokeObjectURL(audioUrl);
 
-  window.speechSynthesis.speak(speech);
+    await audio.play();
+
+  } catch (error) {
+    console.error("KYRGYZ AI Voice:", error);
+    console.log("Үн чыгарууда ката кетти.");
+  }
 }
-
 function setLang(lang, button) {
   if (!translations[lang]) return;
 
