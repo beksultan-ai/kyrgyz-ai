@@ -1,5 +1,6 @@
-
 const API_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/chat";
+const SPEAK_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/speak";
+const TRANSCRIBE_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/transcribe";
 
 const translations = {
   ky: {
@@ -37,7 +38,6 @@ const translations = {
     error: "Ката кетти. Кайра аракет кылыңыз.",
     empty: "Сурооңузду жазыңыз."
   },
-
   ru: {
     navAbout: "Платформа",
     navServices: "Возможности",
@@ -73,7 +73,6 @@ const translations = {
     error: "Произошла ошибка. Попробуйте ещё раз.",
     empty: "Напишите свой вопрос."
   },
-
   en: {
     navAbout: "Platform",
     navServices: "Features",
@@ -112,77 +111,116 @@ const translations = {
 };
 
 let currentLang = "ky";
+let mediaRecorder = null;
+let recordedChunks = [];
+let isRecording = false;
 
-let recognition = null;
-
-function startVoice() {
+function setVoiceStatus(message) {
   const status = document.getElementById("voiceStatus");
-  const input = document.getElementById("userInput");
+  if (status) status.textContent = message;
+}
+
+async function startVoice() {
   const voiceBtn = document.getElementById("voiceBtn");
 
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-    status.textContent = "Браузер үн таанууну колдобойт.";
+  if (isRecording) {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+    }
     return;
   }
 
-  if (recognition) {
-    recognition.stop();
-    recognition = null;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    setVoiceStatus("Браузер микрофонду колдобойт. Chrome колдонуп көрүңүз.");
+    return;
   }
 
-  recognition = new SpeechRecognition();
-  recognition.lang = currentLang === "ky"
-    ? "ky-KG"
-    : currentLang === "ru" ? "ru-RU" : "en-US";
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true
+    });
 
-  recognition.continuous = false;
-  recognition.interimResults = false;
+    recordedChunks = [];
 
-  recognition.onstart = () => {
-    status.textContent = "🎙️ Сүйлөп баштаңыз...";
-    voiceBtn.classList.add("recording");
-  };
+    let options = {};
+    if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+      options.mimeType = "audio/webm;codecs=opus";
+    }
 
-  recognition.onresult = (event) => {
-    const spokenText = event.results[0][0].transcript;
-    input.value = spokenText;
-    status.textContent = "Үн текстке айланды. Жөнөтүлүүдө...";
+    mediaRecorder = new MediaRecorder(stream, options);
 
-    document.getElementById("chatForm").requestSubmit();
-  };
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data && event.data.size > 0) {
+        recordedChunks.push(event.data);
+      }
+    };
 
-  recognition.onerror = () => {
-    status.textContent = "Үн таанууда ката кетти. Кайра аракет кылыңыз.";
-  };
+    mediaRecorder.onstart = () => {
+      isRecording = true;
+      if (voiceBtn) voiceBtn.classList.add("recording");
+      setVoiceStatus("🎙️ Сүйлөп баштаңыз. Бүткөндө микрофонду кайра басыңыз.");
+    };
 
-  recognition.onend = () => {
-    voiceBtn.classList.remove("recording");
-    recognition = null;
-  };
+    mediaRecorder.onstop = async () => {
+      isRecording = false;
+      if (voiceBtn) voiceBtn.classList.remove("recording");
 
-  recognition.start();
+      stream.getTracks().forEach(track => track.stop());
+
+      const mimeType = mediaRecorder.mimeType || "audio/webm";
+      const audioBlob = new Blob(recordedChunks, { type: mimeType });
+
+      if (!audioBlob.size) {
+        setVoiceStatus("Үн жазылган жок. Кайра аракет кылыңыз.");
+        return;
+      }
+
+      setVoiceStatus("Үн таанылып жатат...");
+
+      try {
+        const response = await fetch(TRANSCRIBE_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": mimeType
+          },
+          body: audioBlob
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.text) {
+          throw new Error(data.error || "Үн таанылган жок.");
+        }
+
+        const input = document.getElementById("userInput");
+        if (!input) return;
+
+        input.value = data.text.trim();
+        setVoiceStatus("Текстти текшериңиз. Анан Жөнөтүү баскычын басыңыз.");
+
+      } catch (error) {
+        console.error("KYRGYZ AI transcription:", error);
+        setVoiceStatus("Үн таанууда ката: " + error.message);
+      }
+    };
+
+    mediaRecorder.start();
+
+  } catch (error) {
+    console.error("Microphone error:", error);
+    setVoiceStatus("Микрофонго уруксат бериңиз.");
+  }
 }
-
 
 async function speakText(text) {
   try {
-    window.speechSynthesis.cancel();
-
-    const response = await fetch(
-      "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/speak",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          text: text
-        })
-      }
-    );
+    const response = await fetch(SPEAK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ text })
+    });
 
     if (!response.ok) {
       throw new Error("Үн серверинде ката: " + response.status);
@@ -199,9 +237,9 @@ async function speakText(text) {
 
   } catch (error) {
     console.error("KYRGYZ AI Voice:", error);
-    console.log("Үн чыгарууда ката кетти.");
   }
 }
+
 function setLang(lang, button) {
   if (!translations[lang]) return;
 
@@ -278,9 +316,7 @@ async function sendMessage(event) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        message: message
-      })
+      body: JSON.stringify({ message })
     });
 
     if (!response.ok) {
@@ -297,6 +333,7 @@ async function sendMessage(event) {
     addMessage(reply, "bot");
     speakText(reply);
     status.textContent = "";
+
   } catch (error) {
     console.error("KYRGYZ AI error:", error);
     status.textContent = words.error;
@@ -314,9 +351,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   setLang("ky");
+
   const voiceBtn = document.getElementById("voiceBtn");
 
-if (voiceBtn) {
-  voiceBtn.addEventListener("click", startVoice);
-}
+  if (voiceBtn) {
+    voiceBtn.addEventListener("click", startVoice);
+  }
 });
+
