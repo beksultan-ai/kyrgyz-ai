@@ -1,7 +1,7 @@
+
 const API_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/chat";
 const SPEAK_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/speak";
 const TRANSCRIBE_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/transcribe";
-const VISION_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/vision";
 
 const translations = {
   ky: {
@@ -29,8 +29,8 @@ const translations = {
     closingTitle:"Келечекке бирге кадам таштайлы.",
     closingButton:"Азыр баштоо",sending:"Жөнөтүлүүдө...",
     error:"Ката кетти. Кайра аракет кылыңыз.",empty:"Сурооңузду жазыңыз.",
-    imagePrompt:"Бул сүрөттө эмне бар?",analyze:"Сүрөттү талдоо",
-    removeImage:"Сүрөттү алып салуу",analyzing:"Сүрөт талданып жатат..."
+    imagePrompt:"Бул сүрөттө эмне бар?",
+    removeImage:"Сүрөттү алып салуу"
   },
   ru: {
     navAbout:"Платформа",navServices:"Возможности",navAssistant:"AI помощник",
@@ -59,8 +59,7 @@ const translations = {
     error:"Произошла ошибка. Попробуйте ещё раз.",
     empty:"Напишите свой вопрос.",
     imagePrompt:"Что изображено на этой фотографии?",
-    analyze:"Анализировать фото",removeImage:"Удалить фото",
-    analyzing:"Анализирую изображение..."
+    removeImage:"Удалить фото"
   },
   en: {
     navAbout:"Platform",navServices:"Features",navAssistant:"AI Assistant",
@@ -89,8 +88,7 @@ const translations = {
     error:"Something went wrong. Please try again.",
     empty:"Please write your question.",
     imagePrompt:"What is in this picture?",
-    analyze:"Analyze image",removeImage:"Remove image",
-    analyzing:"Analyzing image..."
+    removeImage:"Remove image"
   }
 };
 
@@ -114,21 +112,30 @@ function setLang(lang, button) {
   Object.keys(words).forEach(id => {
     const element = document.getElementById(id);
     if (!element) return;
-    if (id === "servicesTitle") element.innerHTML = words[id];
-    else element.textContent = words[id];
+
+    if (id === "servicesTitle") {
+      element.innerHTML = words[id];
+    } else {
+      element.textContent = words[id];
+    }
   });
 
   const input = document.getElementById("userInput");
   if (input) input.placeholder = words.placeholder;
 
   const prompt = document.getElementById("imagePrompt");
-  if (prompt && !prompt.value) prompt.placeholder = words.imagePrompt;
-
-  const analyzeButton = document.getElementById("analyzeImageBtn");
-  if (analyzeButton) analyzeButton.textContent = words.analyze;
+  if (prompt && !prompt.value) {
+    prompt.placeholder = words.imagePrompt;
+  }
 
   const removeButton = document.getElementById("removeImageBtn");
-  if (removeButton) removeButton.textContent = words.removeImage;
+  if (removeButton) {
+    removeButton.textContent = words.removeImage;
+  }
+
+  // Өзүнчө сүрөт талдоо баскычын жашыруу
+  const analyzeButton = document.getElementById("analyzeImageBtn");
+  if (analyzeButton) analyzeButton.style.display = "none";
 
   document.documentElement.lang = lang;
 
@@ -136,8 +143,9 @@ function setLang(lang, button) {
     btn.classList.remove("active");
   });
 
-  if (button) button.classList.add("active");
-  else {
+  if (button) {
+    button.classList.add("active");
+  } else {
     const active = document.querySelector(
       `.languages button[onclick*="'${lang}'"]`
     );
@@ -152,6 +160,35 @@ function addMessage(message, type) {
   const bubble = document.createElement("div");
   bubble.className = `message ${type}`;
   bubble.textContent = message;
+
+  messages.appendChild(bubble);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function addUserImageMessage(message, image) {
+  const messages = document.getElementById("messages");
+  if (!messages) return;
+
+  const bubble = document.createElement("div");
+  bubble.className = "message user";
+
+  if (message) {
+    const text = document.createElement("div");
+    text.textContent = message;
+    bubble.appendChild(text);
+  }
+
+  const img = document.createElement("img");
+  img.src = image;
+  img.alt = "Тиркелген сүрөт";
+  img.style.maxWidth = "220px";
+  img.style.maxHeight = "220px";
+  img.style.objectFit = "contain";
+  img.style.display = "block";
+  img.style.marginTop = message ? "8px" : "0";
+  img.style.borderRadius = "12px";
+
+  bubble.appendChild(img);
   messages.appendChild(bubble);
   messages.scrollTop = messages.scrollHeight;
 }
@@ -164,7 +201,9 @@ async function speakText(text) {
       body: JSON.stringify({ text })
     });
 
-    if (!response.ok) throw new Error("Voice server error: " + response.status);
+    if (!response.ok) {
+      throw new Error("Voice server error: " + response.status);
+    }
 
     const audioBlob = await response.blob();
     const audioUrl = URL.createObjectURL(audioBlob);
@@ -179,47 +218,97 @@ async function speakText(text) {
   }
 }
 
+function clearSelectedImage() {
+  selectedImage = null;
+
+  const imageInput = document.getElementById("imageInput");
+  const preview = document.getElementById("imagePreview");
+  const previewImage = document.getElementById("previewImage");
+
+  if (imageInput) imageInput.value = "";
+  if (previewImage) previewImage.src = "";
+  if (preview) preview.style.display = "none";
+}
+
 async function sendMessage(event) {
   event.preventDefault();
 
   const input = document.getElementById("userInput");
   const button = document.getElementById("sendButton");
   const status = document.getElementById("status");
+  const promptInput = document.getElementById("imagePrompt");
 
   if (!input || !button || !status) return;
 
-  const message = input.value.trim();
-  const words = translations[currentLang];
+  let message = input.value.trim();
 
-  if (!message) {
-    status.textContent = words.empty;
+  // Суроо негизги талаада жок болсо, сүрөттүн суроо талаасын колдонуу
+  if (!message && selectedImage && promptInput) {
+    message = promptInput.value.trim();
+  }
+
+  // Сүрөт гана тиркелсе, автоматтык суроо берүү
+  if (!message && selectedImage) {
+    message = translations[currentLang].imagePrompt;
+  }
+
+  if (!message && !selectedImage) {
+    status.textContent = translations[currentLang].empty;
     return;
   }
 
-  addMessage(message, "user");
+  const imageToSend = selectedImage;
+
+  if (imageToSend) {
+    addUserImageMessage(message, imageToSend);
+  } else {
+    addMessage(message, "user");
+  }
+
   input.value = "";
   button.disabled = true;
-  status.textContent = words.sending;
+  status.textContent = translations[currentLang].sending;
 
   try {
+    const payload = { message };
+
+    if (imageToSend) {
+      payload.image = imageToSend;
+    }
+
     const response = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
+      body: JSON.stringify(payload)
     });
 
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Server error");
+
+    if (!response.ok) {
+      throw new Error(data.error || "Server error");
+    }
 
     const reply = data.reply || data.response;
-    if (!reply) throw new Error("Empty response");
+
+    if (!reply) {
+      throw new Error("Empty response");
+    }
 
     addMessage(reply, "bot");
-    speakText(reply);
+
+    if (imageToSend) {
+      clearSelectedImage();
+      if (promptInput) promptInput.value = "";
+    }
+
     status.textContent = "";
+
+    speakText(reply);
+
   } catch (error) {
     console.error("KYRGYZ AI error:", error);
-    status.textContent = words.error;
+    status.textContent =
+      translations[currentLang].error + " " + error.message;
   } finally {
     button.disabled = false;
     input.focus();
@@ -242,10 +331,14 @@ async function startVoice() {
   }
 
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true
+    });
+
     recordedChunks = [];
 
     let options = {};
+
     if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
       options.mimeType = "audio/webm;codecs=opus";
     }
@@ -253,22 +346,32 @@ async function startVoice() {
     mediaRecorder = new MediaRecorder(stream, options);
 
     mediaRecorder.ondataavailable = event => {
-      if (event.data && event.data.size > 0) recordedChunks.push(event.data);
+      if (event.data && event.data.size > 0) {
+        recordedChunks.push(event.data);
+      }
     };
 
     mediaRecorder.onstart = () => {
       isRecording = true;
+
       if (voiceBtn) voiceBtn.classList.add("recording");
-      setVoiceStatus("🎙️ Сүйлөп баштаңыз. Бүткөндө микрофонду кайра басыңыз.");
+
+      setVoiceStatus(
+        "🎙️ Сүйлөп баштаңыз. Бүткөндө микрофонду кайра басыңыз."
+      );
     };
 
     mediaRecorder.onstop = async () => {
       isRecording = false;
+
       if (voiceBtn) voiceBtn.classList.remove("recording");
+
       stream.getTracks().forEach(track => track.stop());
 
       const mimeType = mediaRecorder.mimeType || "audio/webm";
-      const audioBlob = new Blob(recordedChunks, { type: mimeType });
+      const audioBlob = new Blob(recordedChunks, {
+        type: mimeType
+      });
 
       if (!audioBlob.size) {
         setVoiceStatus("Үн жазылган жок. Кайра аракет кылыңыз.");
@@ -285,15 +388,21 @@ async function startVoice() {
         });
 
         const data = await response.json();
+
         if (!response.ok || !data.text) {
           throw new Error(data.error || "Үн таанылган жок.");
         }
 
         const input = document.getElementById("userInput");
+
         if (!input) return;
 
         input.value = data.text.trim();
-        setVoiceStatus("Текстти текшериңиз. Анан жөнөтүү баскычын басыңыз.");
+
+        setVoiceStatus(
+          "Текстти текшериңиз. Анан жөнөтүү баскычын басыңыз."
+        );
+
       } catch (error) {
         console.error("Transcription:", error);
         setVoiceStatus("Үн таанууда ката: " + error.message);
@@ -301,13 +410,15 @@ async function startVoice() {
     };
 
     mediaRecorder.start();
+
   } catch (error) {
     console.error("Microphone error:", error);
     setVoiceStatus("Микрофонго уруксат бериңиз.");
   }
 }
 
-/* СҮРӨТ ЖҮКТӨӨ */
+/* СҮРӨТ ТИРКӨӨ — КАДИМКИ ЧАТКА */
+
 function setupImageUpload() {
   const imageBtn = document.getElementById("imageBtn");
   const imageInput = document.getElementById("imageInput");
@@ -318,20 +429,26 @@ function setupImageUpload() {
 
   if (!imageBtn || !imageInput || !preview || !previewImage) return;
 
-  imageBtn.addEventListener("click", () => imageInput.click());
+  // Өзүнчө талдоо баскычы колдонулбайт
+  if (analyzeBtn) analyzeBtn.style.display = "none";
+
+  imageBtn.addEventListener("click", () => {
+    imageInput.click();
+  });
 
   imageInput.addEventListener("change", () => {
     const file = imageInput.files && imageInput.files[0];
+
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      alert("Сураныч, сүрөт файлын тандаңыз.");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      alert("JPG, PNG же WEBP форматындагы сүрөт тандаңыз.");
       imageInput.value = "";
       return;
     }
 
-    if (file.size > 8 * 1024 * 1024) {
-      alert("Сүрөт 8 MB ашпашы керек. Кичирээк сүрөт тандаңыз.");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Сүрөт 5 MB ашпашы керек. Кичирээк сүрөт тандаңыз.");
       imageInput.value = "";
       return;
     }
@@ -344,82 +461,30 @@ function setupImageUpload() {
       preview.style.display = "block";
     };
 
-    reader.onerror = () => alert("Сүрөттү окуу мүмкүн болгон жок.");
+    reader.onerror = () => {
+      alert("Сүрөттү окуу мүмкүн болгон жок.");
+    };
+
     reader.readAsDataURL(file);
   });
 
   if (removeBtn) {
-    removeBtn.addEventListener("click", () => {
-      selectedImage = null;
-      imageInput.value = "";
-      previewImage.src = "";
-      preview.style.display = "none";
-    });
-  }
-
-  if (analyzeBtn) {
-    analyzeBtn.addEventListener("click", analyzeImage);
-  }
-}
-
-async function analyzeImage() {
-  const promptInput = document.getElementById("imagePrompt");
-  const analyzeBtn = document.getElementById("analyzeImageBtn");
-  const status = document.getElementById("status");
-
-  if (!selectedImage) {
-    status.textContent = "Алгач сүрөт тандаңыз.";
-    return;
-  }
-
-  const prompt = promptInput.value.trim() ||
-    translations[currentLang].imagePrompt;
-
-  analyzeBtn.disabled = true;
-  status.textContent = translations[currentLang].analyzing;
-
-  addMessage("📷 " + prompt, "user");
-
-  try {
-    const response = await fetch(VISION_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        image: selectedImage,
-        prompt: prompt
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Vision server error");
-    }
-
-    const reply = data.reply || data.response ||
-      data.description || data.result;
-
-    if (!reply) {
-      throw new Error("AI жооп кайтарган жок.");
-    }
-
-    addMessage(reply, "bot");
-    speakText(reply);
-    status.textContent = "";
-  } catch (error) {
-    console.error("KYRGYZ AI Vision:", error);
-    status.textContent = "Сүрөттү талдоодо ката: " + error.message;
-  } finally {
-    analyzeBtn.disabled = false;
+    removeBtn.addEventListener("click", clearSelectedImage);
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("chatForm");
-  if (form) form.addEventListener("submit", sendMessage);
+
+  if (form) {
+    form.addEventListener("submit", sendMessage);
+  }
 
   const voiceBtn = document.getElementById("voiceBtn");
-  if (voiceBtn) voiceBtn.addEventListener("click", startVoice);
+
+  if (voiceBtn) {
+    voiceBtn.addEventListener("click", startVoice);
+  }
 
   setupImageUpload();
   setLang("ky");
