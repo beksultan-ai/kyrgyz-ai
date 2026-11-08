@@ -1,234 +1,178 @@
-
 <!DOCTYPE html>
 <html lang="ky">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#070b14">
-  <meta name="description" content="KYRGYZ AI — Кыргызстандагы жасалма интеллект платформасы.">
-
-  <!-- Google Search Console verification -->
-  <meta name="google-site-verification" content="MDbuBJV5FYVJp88RweSY2lNALb0_O5fkD-dpJPwJRd0" />
-
-  <title>KYRGYZ AI — Intelligence Without Borders</title>
+  <meta name="theme-color" content="#050914">
+  <meta name="description" content="KYRGYZ AI — Кыргызстандан дүйнөгө багытталган жасалма интеллект платформасы.">
+  <meta name="google-site-verification" content="MDbuBJV5FYVJp88RweSY2lNALb0_O5fkD-dpJPwJRd0">
+  <title>KYRGYZ AI — Your World. Your AI.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-
-  <style>
-    .chat-tools { display:flex; gap:8px; align-items:center; }
-    .image-button,.voice-button {
-      min-width:46px;height:46px;border:1px solid #334155;
-      border-radius:14px;background:#111c30;color:white;
-      font-size:20px;cursor:pointer;
-    }
-    .image-button:hover,.voice-button:hover { background:#243650; }
-    .image-preview { display:none;margin:12px 0;padding:12px;
-      border:1px solid #334155;border-radius:14px;background:#101a2b; }
-    .image-preview img { display:block;max-width:100%;max-height:220px;
-      margin:0 auto 10px;border-radius:10px; }
-    .image-preview button { padding:9px 14px;border:0;border-radius:10px;
-      background:#263c5b;color:white;cursor:pointer; }
-    .image-preview input { width:100%;box-sizing:border-box;padding:12px;
-      border-radius:10px;border:1px solid #40516b;background:#07101e;
-      color:white;margin:8px 0; }
-    .image-actions { display:flex;gap:8px;flex-wrap:wrap; }
-    #analyzeImageBtn { background:#2563eb;color:white;border:0;
-      border-radius:10px;padding:11px 16px;cursor:pointer; }
-    #analyzeImageBtn:disabled { opacity:.5; }
-  </style>
 </head>
-
 <body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="star-field" aria-hidden="true"></div>
 
-<div class="ambient ambient-one"></div>
-<div class="ambient ambient-two"></div>
+  <header class="header">
+    <a class="brand" href="#top" aria-label="KYRGYZ AI home">
+      <span class="brand-symbol">K</span>
+      <span>KYRGYZ<span class="brand-light"> AI</span></span>
+    </a>
 
-<header class="header">
-  <a href="#" class="brand">
-    <span class="brand-symbol">K</span>
-    <span>KYRGYZ<span class="brand-light"> AI</span></span>
-  </a>
-  <nav class="nav">
-    <a href="#about" id="navAbout">Платформа</a>
-    <a href="#services" id="navServices">Мүмкүнчүлүктөр</a>
-    <a href="#assistant" id="navAssistant">AI жардамчы</a>
-  </nav>
-  <div class="header-right">
-    <div class="languages">
-      <button class="active" onclick="setLang('ky',this)">KG</button>
-      <button onclick="setLang('ru',this)">RU</button>
-      <button onclick="setLang('en',this)">EN</button>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#about" id="navAbout">Биз жөнүндө</a>
+      <a href="#services" id="navServices">Мүмкүнчүлүктөр</a>
+      <a href="#assistant" id="navAssistant">AI жардамчы</a>
+    </nav>
+
+    <div class="header-right">
+      <div class="languages" aria-label="Language">
+        <button class="active" type="button" onclick="setLang('ky', this)">KG</button>
+        <button type="button" onclick="setLang('ru', this)">RU</button>
+        <button type="button" onclick="setLang('en', this)">EN</button>
+      </div>
+      <a class="header-cta" href="#assistant" id="headerCta">Баштоо ↗</a>
     </div>
-    <a href="#assistant" class="header-cta" id="headerCta">Баштоо ↗</a>
-  </div>
-</header>
+  </header>
 
-<main>
-  <section class="hero" id="about">
-    <div class="hero-content">
-      <div class="eyebrow">
-        <span class="live-dot"></span>
-        <span id="eyebrowText">КЫРГЫЗСТАНДАН ДҮЙНӨГӨ</span>
-      </div>
-      <h1>
-        <span id="heroLineOne">Келечек</span><br>
-        <span class="gradient-text" id="heroLineTwo">ушул жерден башталат.</span>
-      </h1>
-      <p class="hero-description" id="intro">
-        Кыргызстандан дүйнөгө багытталган жаңы муундагы жасалма интеллект платформасы.
-      </p>
-      <div class="hero-actions">
-        <a href="#assistant" class="primary-button" id="startButton">
-          AI менен сүйлөшүү <span>↗</span>
-        </a>
-        <a href="#services" class="secondary-button" id="exploreButton">
-          Мүмкүнчүлүктөрдү көрүү
-        </a>
-      </div>
-      <div class="hero-note">
-        <span class="note-line"></span>
-        <span id="heroNote">Your World. Your AI.</span>
-      </div>
-    </div>
-
-    <div class="hero-visual">
-      <div class="orb-orbit orbit-one"></div>
-      <div class="orb-orbit orbit-two"></div>
-      <div class="orb-orbit orbit-three"></div>
-      <div class="ai-orb">
-        <div class="orb-core"></div>
-        <div class="orb-shine"></div>
-      </div>
-      <div class="flag-card">
-        <div class="flag">
-          <div class="flag-sun"><div class="flag-tunduk"></div></div>
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow" id="eyebrowText"><span class="live-dot"></span> КЫРГЫЗСТАНДАН ДҮЙНӨГӨ</div>
+        <h1><span id="heroLineOne">Келечек</span><br><span class="gradient-text" id="heroLineTwo">ушул жерден башталат.</span></h1>
+        <p class="hero-description" id="intro">Кыргызстандан дүйнөгө багытталган жаңы муундагы жасалма интеллект платформасы.</p>
+        <div class="hero-actions">
+          <a class="primary-button" id="startButton" href="#assistant">AI менен сүйлөшүү <span>↗</span></a>
+          <a class="secondary-button" id="exploreButton" href="#services">Мүмкүнчүлүктөрдү көрүү <span>⌄</span></a>
         </div>
-        <div class="flag-caption">
-          <strong>KYRGYZSTAN</strong>
-          <span id="flagCaption">Дүйнө үчүн жаралган</span>
+        <div class="hero-note" id="heroNote"><span class="note-line"></span> YOUR WORLD. YOUR AI. <span class="note-line"></span></div>
+      </div>
+
+      <div class="hero-visual" aria-label="KYRGYZ AI futuristic visual">
+        <div class="visual-label"><span class="live-dot"></span> NEXT GENERATION INTELLIGENCE</div>
+        <div class="globe-wrap">
+          <div class="globe-halo"></div>
+          <div class="globe">
+            <div class="globe-grid"></div>
+            <div class="globe-land land-one"></div>
+            <div class="globe-land land-two"></div>
+            <div class="globe-land land-three"></div>
+            <div class="globe-highlight"><span></span></div>
+            <div class="globe-shine"></div>
+          </div>
+          <div class="globe-orbit orbit-a"><i></i></div>
+          <div class="globe-orbit orbit-b"><i></i></div>
+          <div class="globe-orbit orbit-c"></div>
+          <div class="globe-core-label"><span class="core-pulse"></span> KYRGYZ AI CORE</div>
         </div>
+
+        <div class="flag-card">
+          <div class="flag"><span class="flag-sun"><i></i></span></div>
+          <div class="flag-caption"><strong id="flagCaption">КЫРГЫЗСТАН</strong><span>THE HEART OF CENTRAL ASIA</span></div>
+        </div>
+        <div class="leopard-mark" aria-hidden="true">🐆</div>
+        <div class="visual-coordinate">41° 12′ N&nbsp; · &nbsp;74° 46′ E</div>
       </div>
-      <div class="visual-label">
-        <span class="live-dot"></span>
-        INTELLIGENCE IN MOTION
+    </section>
+
+    <section class="statement" id="about">
+      <div class="statement-line"></div>
+      <p id="description">Биздин максат — жасалма интеллекттин мүмкүнчүлүктөрүн ар бир адамга жана ар бир бизнеске жеткиликтүү кылуу.</p>
+      <div class="statement-signature">BUILT WITH A KYRGYZ SPIRIT <span>✦</span> MADE FOR THE WORLD</div>
+    </section>
+
+    <section class="services" id="services">
+      <div class="section-heading">
+        <div class="section-kicker" id="servicesKicker">KYRGYZ AI ECOSYSTEM</div>
+        <h2 id="servicesTitle">Бир платформа. <span>Чексиз мүмкүнчүлүк.</span></h2>
       </div>
-    </div>
-  </section>
+      <div class="service-grid">
+        <article class="service-card">
+          <div class="card-top"><span class="card-icon">⌘</span><span class="card-number">01 / BUSINESS</span></div>
+          <h3 id="businessTitle">Бизнес үчүн AI</h3>
+          <p id="businessText">Күнүмдүк иштерди жеңилдетип, идеяларды жана жумуш процесстерин ылдамдатуучу акылдуу жардамчы.</p>
+          <span class="card-arrow">↗</span>
+          <div class="card-glow"></div>
+        </article>
+        <article class="service-card">
+          <div class="card-top"><span class="card-icon">✧</span><span class="card-number">02 / PERSONAL</span></div>
+          <h3 id="peopleTitle">Ар бир адам үчүн</h3>
+          <p id="peopleText">Суроолорго жооп, үйрөнүү, жазуу, котормо жана күнүмдүк тапшырмаларга жардам.</p>
+          <span class="card-arrow">↗</span>
+          <div class="card-glow"></div>
+        </article>
+        <article class="service-card">
+          <div class="card-top"><span class="card-icon">◎</span><span class="card-number">03 / MULTILINGUAL</span></div>
+          <h3 id="globalTitle">Үч тил. Бир дүйнө.</h3>
+          <p id="globalText">Кыргызча, орусча жана англисче баарлашууга ылайыкташкан платформа.</p>
+          <span class="card-arrow">↗</span>
+          <div class="card-glow"></div>
+        </article>
+      </div>
+    </section>
 
-  <section class="statement">
-    <div class="statement-line"></div>
-    <p id="description">
-      Бизнестин жана адамдардын күнүмдүк иштерин жасалма интеллект менен жеңилдетебиз.
-    </p>
-  </section>
+    <section class="assistant-section" id="assistant">
+      <div class="assistant-heading">
+        <div class="section-kicker" id="chatKicker">MEET YOUR AI</div>
+        <h2 id="assistantTitle">Сенин жеке <span class="gradient-text">AI жардамчың.</span></h2>
+        <p id="welcome">Сурооңду жаз же үн менен сүйлө. KYRGYZ AI жардам берүүгө даяр.</p>
+      </div>
 
-  <section class="services" id="services">
-    <div class="section-heading">
-      <span class="section-kicker" id="servicesKicker">БИЗ ЭМНЕ КЫЛАБЫЗ</span>
-      <h2 id="servicesTitle">Бир платформа.<br><span>Чексиз мүмкүнчүлүк.</span></h2>
-    </div>
-    <div class="service-grid">
-      <article class="service-card">
-        <div class="card-icon">✳</div>
-        <span class="card-number">01 / BUSINESS</span>
-        <h3 id="businessTitle">Бизнес үчүн AI</h3>
-        <p id="businessText">Иш процесстерин автоматташтыруу жана бизнеске акылдуу жардам.</p>
-        <span class="card-arrow">↗</span>
-      </article>
-      <article class="service-card">
-        <div class="card-icon">◈</div>
-        <span class="card-number">02 / PERSONAL</span>
-        <h3 id="peopleTitle">Ар бир адам үчүн</h3>
-        <p id="peopleText">Күнүмдүк суроолорго жооп, идеялар жана жеке жардамчы.</p>
-        <span class="card-arrow">↗</span>
-      </article>
-      <article class="service-card">
-        <div class="card-icon">◎</div>
-        <span class="card-number">03 / GLOBAL</span>
-        <h3 id="globalTitle">Дүйнөгө ачык</h3>
-        <p id="globalText">Кыргызча, орусча жана англисче баарлашуу мүмкүнчүлүгү.</p>
-        <span class="card-arrow">↗</span>
-      </article>
-    </div>
-  </section>
+      <div class="chat-window">
+        <div class="chat-top">
+          <div class="chat-brand">
+            <div class="chat-avatar">K</div>
+            <div><strong>KYRGYZ AI</strong><span><i class="online-dot"></i> <span id="onlineText">Онлайн · AI жардамчы</span></span></div>
+          </div>
+          <div class="chat-version">FUTURE 01</div>
+        </div>
 
-  <section class="assistant-section" id="assistant">
-    <div class="assistant-heading">
-      <span class="section-kicker" id="chatKicker">AI МЕНЕН ТААНЫШЫҢЫЗ</span>
-      <h2 id="assistantTitle">Сүйлөшүүнү башта.</h2>
-      <p id="welcome">Саламатсызбы! Мен KYRGYZ AI жардамчысымын. Сизге кандай жардам бере алам?</p>
-    </div>
+        <div class="messages" id="messages">
+          <div class="message bot" id="initialMessage">Саламатсызбы! Мен KYRGYZ AI жардамчысымын. Сизге кандай жардам бере алам?</div>
+        </div>
 
-    <div class="chat-window">
-      <div class="chat-top">
-        <div class="chat-brand">
-          <span class="chat-avatar">K</span>
-          <div>
-            <strong>KYRGYZ AI</strong>
-            <span><i class="live-dot"></i> <span id="onlineText">Онлайн жардамчы</span></span>
+        <div class="image-preview" id="imagePreview" style="display:none">
+          <img id="previewImage" alt="Жүктөлгөн сүрөттүн алдын ала көрүнүшү">
+          <div class="image-actions">
+            <input type="text" id="imagePrompt" placeholder="Бул сүрөт жөнүндө эмне билгиңиз келет?">
+            <button type="button" id="analyzeImageBtn">Талдоо</button>
+            <button type="button" id="removeImageBtn" aria-label="Remove image">✕</button>
           </div>
         </div>
-        <span class="chat-version">AI / 01</span>
-      </div>
 
-      <div class="messages" id="messages" aria-live="polite">
-        <div class="message bot" id="initialMessage">
-          Саламатсызбы! Мен KYRGYZ AI жардамчысымын. Сурооңузду жазыңыз.
+        <div class="chat-tools">
+          <button class="image-button" type="button" id="imageBtn" aria-label="Сүрөт жүктөө">＋</button>
+          <input type="file" id="imageInput" accept="image/*" hidden>
+          <button class="voice-button" type="button" id="voiceBtn" aria-label="Үн менен сүйлөө">🎙</button>
+          <form class="chat-form" id="chatForm">
+            <input type="text" id="userInput" placeholder="Билгиңиз келген суроону жазыңыз..." autocomplete="off" required>
+            <button type="submit" id="sendButton" aria-label="Send message">➤</button>
+          </form>
         </div>
+        <div class="chat-status" id="status" aria-live="polite"></div>
+        <div class="chat-status voice-status" id="voiceStatus" aria-live="polite"></div>
+        <p class="chat-disclaimer" id="disclaimer">AI жоопторун маанилүү чечимдер үчүн текшерип алыңыз.</p>
       </div>
+    </section>
 
-      <div class="image-preview" id="imagePreview">
-        <img id="previewImage" alt="Тандалган сүрөт">
-        <input id="imagePrompt" type="text"
-          placeholder="Бул сүрөттө эмне бар?">
-        <div class="image-actions">
-          <button type="button" id="analyzeImageBtn">Сүрөттү талдоо</button>
-          <button type="button" id="removeImageBtn">Сүрөттү алып салуу</button>
-        </div>
-      </div>
+    <section class="closing">
+      <div class="closing-orbit"></div>
+      <div class="section-kicker">THE FUTURE STARTS HERE</div>
+      <h2 id="closingTitle">Кыргызстандан дүйнөгө. <span class="gradient-text">Келечекке бир кадам.</span></h2>
+      <a class="primary-button" id="closingButton" href="#assistant">KYRGYZ AI менен таанышуу <span>↗</span></a>
+    </section>
+  </main>
 
-      <div class="chat-tools">
-        <button type="button" id="imageBtn" class="image-button"
-          title="Сүрөт жүктөө">📷</button>
-        <input type="file" id="imageInput" accept="image/*" hidden>
+  <footer class="footer">
+    <a class="brand footer-brand" href="#top"><span class="brand-symbol">K</span><span>KYRGYZ<span class="brand-light"> AI</span></span></a>
+    <p>© 2026 KYRGYZ AI. ALL RIGHTS RESERVED.</p>
+    <span class="footer-tag">YOUR WORLD. YOUR AI. <span>🇰🇬</span></span>
+  </footer>
 
-        <button type="button" id="voiceBtn" class="voice-button">🎙️</button>
-
-        <form class="chat-form" id="chatForm">
-          <input id="userInput" type="text" maxlength="1500"
-            placeholder="Сурооңузду жазыңыз..." required>
-          <button id="sendButton" type="submit">↑</button>
-        </form>
-      </div>
-
-      <p id="voiceStatus" class="chat-status">
-        Микрофонду басып үн менен сүйлөшүңүз
-      </p>
-      <p class="chat-status" id="status"></p>
-      <div class="chat-disclaimer" id="disclaimer">KYRGYZ AI · Your World. Your AI.</div>
-    </div>
-  </section>
-
-  <section class="closing">
-    <span class="section-kicker">BUILT FROM KYRGYZSTAN</span>
-    <h2 id="closingTitle">Келечекке бирге кадам таштайлы.</h2>
-    <a href="#assistant" class="primary-button" id="closingButton">
-      Азыр баштоо <span>↗</span>
-    </a>
-  </section>
-</main>
-
-<footer class="footer">
-  <a href="#" class="brand">
-    <span class="brand-symbol">K</span>
-    <span>KYRGYZ<span class="brand-light"> AI</span></span>
-  </a>
-  <p>© 2026 KYRGYZ AI. All rights reserved.</p>
-  <span class="footer-tag">YOUR WORLD. YOUR AI.</span>
-</footer>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
