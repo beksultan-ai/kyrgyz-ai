@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ky">
 <head>
@@ -11,7 +12,95 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Orbitron:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    .account-panel {
+      width: min(100% - 32px, 850px);
+      margin: 25px auto;
+      padding: 22px;
+      border: 1px solid rgba(101,230,223,.2);
+      border-radius: 18px;
+      background: rgba(16,24,39,.8);
+      color: #f4f7ff;
+    }
+    .account-panel h3 { margin: 0 0 14px; }
+    .account-fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .account-fields input {
+      flex: 1 1 180px;
+      min-width: 0;
+      padding: 13px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 10px;
+      background: #080f1c;
+      color: #fff;
+      outline: none;
+    }
+    .account-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 12px;
+    }
+    .account-actions button, .history-actions button {
+      padding: 11px 15px;
+      border: 1px solid rgba(101,230,223,.35);
+      border-radius: 10px;
+      background: rgba(101,230,223,.1);
+      color: #eaffff;
+      cursor: pointer;
+    }
+    .account-actions button:hover, .history-actions button:hover {
+      background: rgba(101,230,223,.2);
+    }
+    #accountStatus {
+      min-height: 20px;
+      margin: 12px 0 0;
+      color: #9aa8bd;
+      overflow-wrap: anywhere;
+    }
+    #accountUser {
+      margin-top: 10px;
+      color: #65e6df;
+      overflow-wrap: anywhere;
+    }
+    .history-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 14px;
+    }
+    #conversationList {
+      display: grid;
+      gap: 7px;
+      margin-top: 12px;
+    }
+    #conversationList button {
+      padding: 11px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 9px;
+      background: rgba(255,255,255,.04);
+      color: #f4f7ff;
+      text-align: left;
+      cursor: pointer;
+      overflow-wrap: anywhere;
+    }
+    #conversationList button.active {
+      border-color: #65e6df;
+      background: rgba(101,230,223,.1);
+    }
+    .account-note {
+      margin: 10px 0 0;
+      color: #9aa8bd;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  </style>
 </head>
+
 <body>
   <div class="ambient ambient-one"></div>
   <div class="ambient ambient-two"></div>
@@ -122,6 +211,27 @@
         <p id="welcome">Сурооңду жаз же үн менен сүйлө. KYRGYZ AI жардам берүүгө даяр.</p>
       </div>
 
+      <div class="account-panel" id="accountPanel">
+        <h3>KYRGYZ AI аккаунту</h3>
+        <div class="account-fields">
+          <input type="email" id="authEmail" placeholder="Электрондук почта" autocomplete="email">
+          <input type="password" id="authPassword" placeholder="Сырсөз" autocomplete="current-password">
+        </div>
+        <div class="account-actions">
+          <button type="button" id="signInBtn">Кирүү</button>
+          <button type="button" id="signUpBtn">Аккаунт ачуу</button>
+          <button type="button" id="signOutBtn" hidden>Чыгуу</button>
+        </div>
+        <div id="accountUser"></div>
+        <p id="accountStatus" aria-live="polite"></p>
+        <p class="account-note">Аккаунт ачкандан кийин электрондук почтаңызды ырастоо талап кылынышы мүмкүн.</p>
+        <div class="history-actions">
+          <button type="button" id="newConversationBtn">＋ Жаңы сүйлөшүү</button>
+          <button type="button" id="refreshConversationsBtn">Тарыхты жаңыртуу</button>
+        </div>
+        <div id="conversationList"></div>
+      </div>
+
       <div class="chat-window">
         <div class="chat-top">
           <div class="chat-brand">
@@ -146,10 +256,10 @@
 
         <div class="chat-tools">
           <button class="image-button" type="button" id="imageBtn" aria-label="Сүрөт жүктөө">＋</button>
-          <input type="file" id="imageInput" accept="image/*" hidden>
+          <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp" hidden>
           <button class="voice-button" type="button" id="voiceBtn" aria-label="Үн менен сүйлөө">🎙</button>
           <form class="chat-form" id="chatForm">
-            <input type="text" id="userInput" placeholder="Билгиңиз келген суроону жазыңыз..." autocomplete="off" required>
+            <input type="text" id="userInput" placeholder="Билгиңиз келген суроону жазыңыз..." autocomplete="off">
             <button type="submit" id="sendButton" aria-label="Send message">➤</button>
           </form>
         </div>
@@ -173,6 +283,7 @@
     <span class="footer-tag">YOUR WORLD. YOUR AI. <span>🇰🇬</span></span>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>
