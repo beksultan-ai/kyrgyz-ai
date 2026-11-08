@@ -10,7 +10,7 @@ const TRANSCRIBE_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/trans
 /* SUPABASE МААЛЫМАТТАРЫ
    Төмөнкү эки сапка өзүңдүн маалыматтарыңды кой.
 */
-const SUPABASE_URL = "https://akxeexfeqsqvgpbkryrh.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://akxeexfeqsqvgpbkryrh.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_WKsyjfWzaC6D6RgwuPUnEw_9qOhI12b";
 
 let supabaseClient = null;
