@@ -1,16 +1,41 @@
 
+/* ==========================================
+   KYRGYZ AI — CHAT + SUPABASE AUTH + HISTORY
+   ========================================== */
+
 const API_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/chat";
 const SPEAK_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/speak";
 const TRANSCRIBE_URL = "https://kyrgyz-ai-server.bekskylyc.workers.dev/api/transcribe";
 
+/* SUPABASE МААЛЫМАТТАРЫ
+   Төмөнкү эки сапка өзүңдүн маалыматтарыңды кой.
+*/
+const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
+const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+
+let supabaseClient = null;
+let currentUser = null;
+let currentConversationId = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let isRecording = false;
+let selectedImage = null;
+let isLoadingHistory = false;
+
 const translations = {
   ky: {
-    navAbout:"Платформа",navServices:"Мүмкүнчүлүктөр",navAssistant:"AI жардамчы",
-    headerCta:"Баштоо ↗",eyebrowText:"КЫРГЫЗСТАНДАН ДҮЙНӨГӨ",
-    heroLineOne:"Келечек",heroLineTwo:"ушул жерден башталат.",
+    navAbout:"Платформа",
+    navServices:"Мүмкүнчүлүктөр",
+    navAssistant:"AI жардамчы",
+    headerCta:"Баштоо ↗",
+    eyebrowText:"КЫРГЫЗСТАНДАН ДҮЙНӨГӨ",
+    heroLineOne:"Келечек",
+    heroLineTwo:"ушул жерден башталат.",
     intro:"Кыргызстандан дүйнөгө багытталган жаңы муундагы жасалма интеллект платформасы.",
-    startButton:"AI менен сүйлөшүү",exploreButton:"Мүмкүнчүлүктөрдү көрүү",
-    heroNote:"Your World. Your AI.",flagCaption:"Дүйнө үчүн жаралган",
+    startButton:"AI менен сүйлөшүү",
+    exploreButton:"Мүмкүнчүлүктөрдү көрүү",
+    heroNote:"Your World. Your AI.",
+    flagCaption:"КЫРГЫЗСТАН",
     description:"Бизнестин жана адамдардын күнүмдүк иштерин жасалма интеллект менен жеңилдетебиз.",
     servicesKicker:"БИЗ ЭМНЕ КЫЛАБЫЗ",
     servicesTitle:"Бир платформа.<br>Чексиз мүмкүнчүлүк.",
@@ -20,25 +45,35 @@ const translations = {
     peopleText:"Күнүмдүк суроолорго жооп, идеялар жана жеке жардамчы.",
     globalTitle:"Дүйнөгө ачык",
     globalText:"Кыргызча, орусча жана англисче баарлашуу мүмкүнчүлүгү.",
-    chatKicker:"AI МЕНЕН ТААНЫШЫҢЫЗ",assistantTitle:"Сүйлөшүүнү башта.",
+    chatKicker:"AI МЕНЕН ТААНЫШЫҢЫЗ",
+    assistantTitle:"Сүйлөшүүнү башта.",
     welcome:"Саламатсызбы! Мен KYRGYZ AI жардамчысымын. Сизге кандай жардам бере алам?",
     onlineText:"Онлайн жардамчы",
     initialMessage:"Саламатсызбы! Мен KYRGYZ AI жардамчысымын. Сурооңузду жазыңыз.",
     placeholder:"Сурооңузду жазыңыз...",
     disclaimer:"KYRGYZ AI · Your World. Your AI.",
     closingTitle:"Келечекке бирге кадам таштайлы.",
-    closingButton:"Азыр баштоо",sending:"Жөнөтүлүүдө...",
-    error:"Ката кетти. Кайра аракет кылыңыз.",empty:"Сурооңузду жазыңыз.",
+    closingButton:"Азыр баштоо",
+    sending:"Жөнөтүлүүдө...",
+    error:"Ката кетти. Кайра аракет кылыңыз.",
+    empty:"Сурооңузду жазыңыз.",
     imagePrompt:"Бул сүрөттө эмне бар?",
     removeImage:"Сүрөттү алып салуу"
   },
+
   ru: {
-    navAbout:"Платформа",navServices:"Возможности",navAssistant:"AI помощник",
-    headerCta:"Начать ↗",eyebrowText:"ИЗ КЫРГЫЗСТАНА В МИР",
-    heroLineOne:"Будущее",heroLineTwo:"начинается здесь.",
+    navAbout:"Платформа",
+    navServices:"Возможности",
+    navAssistant:"AI помощник",
+    headerCta:"Начать ↗",
+    eyebrowText:"ИЗ КЫРГЫЗСТАНА В МИР",
+    heroLineOne:"Будущее",
+    heroLineTwo:"начинается здесь.",
     intro:"Платформа искусственного интеллекта нового поколения, созданная в Кыргызстане для всего мира.",
-    startButton:"Общаться с AI",exploreButton:"Наши возможности",
-    heroNote:"Your World. Your AI.",flagCaption:"Создано для мира",
+    startButton:"Общаться с AI",
+    exploreButton:"Наши возможности",
+    heroNote:"Your World. Your AI.",
+    flagCaption:"КЫРГЫЗСТАН",
     description:"Мы упрощаем повседневные задачи бизнеса и людей с помощью искусственного интеллекта.",
     servicesKicker:"ЧТО МЫ ДЕЛАЕМ",
     servicesTitle:"Одна платформа.<br>Безграничные возможности.",
@@ -48,26 +83,35 @@ const translations = {
     peopleText:"Ответы на повседневные вопросы, идеи и персональный помощник.",
     globalTitle:"Открыты миру",
     globalText:"Общение на кыргызском, русском и английском языках.",
-    chatKicker:"ПОЗНАКОМЬТЕСЬ С AI",assistantTitle:"Начните разговор.",
+    chatKicker:"ПОЗНАКОМЬТЕСЬ С AI",
+    assistantTitle:"Начните разговор.",
     welcome:"Здравствуйте! Я помощник KYRGYZ AI. Чем могу вам помочь?",
     onlineText:"Онлайн-помощник",
     initialMessage:"Здравствуйте! Я помощник KYRGYZ AI. Напишите свой вопрос.",
     placeholder:"Напишите свой вопрос...",
     disclaimer:"KYRGYZ AI · Your World. Your AI.",
     closingTitle:"Давайте вместе двигаться в будущее.",
-    closingButton:"Начать сейчас",sending:"Отправка...",
+    closingButton:"Начать сейчас",
+    sending:"Отправка...",
     error:"Произошла ошибка. Попробуйте ещё раз.",
     empty:"Напишите свой вопрос.",
     imagePrompt:"Что изображено на этой фотографии?",
     removeImage:"Удалить фото"
   },
+
   en: {
-    navAbout:"Platform",navServices:"Features",navAssistant:"AI Assistant",
-    headerCta:"Get started ↗",eyebrowText:"FROM KYRGYZSTAN TO THE WORLD",
-    heroLineOne:"The future",heroLineTwo:"starts here.",
+    navAbout:"Platform",
+    navServices:"Features",
+    navAssistant:"AI Assistant",
+    headerCta:"Get started ↗",
+    eyebrowText:"FROM KYRGYZSTAN TO THE WORLD",
+    heroLineOne:"The future",
+    heroLineTwo:"starts here.",
     intro:"A new-generation artificial intelligence platform built in Kyrgyzstan for the world.",
-    startButton:"Talk to AI",exploreButton:"Explore features",
-    heroNote:"Your World. Your AI.",flagCaption:"Made for the world",
+    startButton:"Talk to AI",
+    exploreButton:"Explore features",
+    heroNote:"Your World. Your AI.",
+    flagCaption:"KYRGYZSTAN",
     description:"We make everyday tasks easier for businesses and people with artificial intelligence.",
     servicesKicker:"WHAT WE DO",
     servicesTitle:"One platform.<br>Endless possibilities.",
@@ -77,14 +121,16 @@ const translations = {
     peopleText:"Answers to everyday questions, ideas, and a personal assistant.",
     globalTitle:"Open to the world",
     globalText:"Communicate in Kyrgyz, Russian, and English.",
-    chatKicker:"MEET YOUR AI",assistantTitle:"Start a conversation.",
+    chatKicker:"MEET YOUR AI",
+    assistantTitle:"Start a conversation.",
     welcome:"Hello! I'm the KYRGYZ AI assistant. How can I help you?",
     onlineText:"Online assistant",
     initialMessage:"Hello! I'm the KYRGYZ AI assistant. Write your question.",
     placeholder:"Write your question...",
     disclaimer:"KYRGYZ AI · Your World. Your AI.",
     closingTitle:"Let's take a step into the future together.",
-    closingButton:"Start now",sending:"Sending...",
+    closingButton:"Start now",
+    sending:"Sending...",
     error:"Something went wrong. Please try again.",
     empty:"Please write your question.",
     imagePrompt:"What is in this picture?",
@@ -92,14 +138,23 @@ const translations = {
   }
 };
 
-let currentLang = "ky";
-let mediaRecorder = null;
-let recordedChunks = [];
-let isRecording = false;
-let selectedImage = null;
+/* ==========================================
+   ЖАЛПЫ ЖАРДАМЧЫ ФУНКЦИЯЛАР
+   ========================================== */
+
+function getText(key) {
+  return translations[currentLang]?.[key] ||
+         translations.ky[key] ||
+         key;
+}
 
 function setVoiceStatus(message) {
   const status = document.getElementById("voiceStatus");
+  if (status) status.textContent = message;
+}
+
+function setAccountStatus(message) {
+  const status = document.getElementById("accountStatus");
   if (status) status.textContent = message;
 }
 
@@ -133,7 +188,6 @@ function setLang(lang, button) {
     removeButton.textContent = words.removeImage;
   }
 
-  // Өзүнчө сүрөт талдоо баскычын жашыруу
   const analyzeButton = document.getElementById("analyzeImageBtn");
   if (analyzeButton) analyzeButton.style.display = "none";
 
@@ -165,6 +219,11 @@ function addMessage(message, type) {
   messages.scrollTop = messages.scrollHeight;
 }
 
+function clearChatDisplay() {
+  const messages = document.getElementById("messages");
+  if (messages) messages.innerHTML = "";
+}
+
 function addUserImageMessage(message, image) {
   const messages = document.getElementById("messages");
   if (!messages) return;
@@ -193,6 +252,383 @@ function addUserImageMessage(message, image) {
   messages.scrollTop = messages.scrollHeight;
 }
 
+/* ==========================================
+   SUPABASE ИНИЦИАЛИЗАЦИЯСЫ
+   ========================================== */
+
+function initializeSupabase() {
+  if (!window.supabase || !window.supabase.createClient) {
+    setAccountStatus("Supabase китепканасы жүктөлгөн жок. Интернетти текшериңиз.");
+    return;
+  }
+
+  if (
+    SUPABASE_URL.includes("PASTE_") ||
+    SUPABASE_PUBLISHABLE_KEY.includes("PASTE_")
+  ) {
+    setAccountStatus("Supabase URL жана Publishable key кодго киргизиле элек.");
+    return;
+  }
+
+  try {
+    supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    listenToAuthChanges();
+    checkCurrentSession();
+
+  } catch (error) {
+    console.error("Supabase initialization:", error);
+    setAccountStatus("Supabase туташтырууда ката кетти.");
+  }
+}
+
+async function checkCurrentSession() {
+  if (!supabaseClient) return;
+
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error) throw error;
+
+    await updateAuthInterface(data.session?.user || null);
+
+  } catch (error) {
+    console.error("Session error:", error);
+    setAccountStatus("Аккаунт абалын текшерүү мүмкүн болгон жок.");
+  }
+}
+
+function listenToAuthChanges() {
+  if (!supabaseClient) return;
+
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    setTimeout(() => {
+      updateAuthInterface(session?.user || null);
+    }, 0);
+  });
+}
+
+async function updateAuthInterface(user) {
+  const previousUserId = currentUser?.id || null;
+  currentUser = user;
+
+  const userElement = document.getElementById("accountUser");
+  const signInButton = document.getElementById("signInBtn");
+  const signUpButton = document.getElementById("signUpBtn");
+  const signOutButton = document.getElementById("signOutBtn");
+  const historyButtons = document.querySelector(".history-actions");
+
+  if (user) {
+    if (userElement) {
+      userElement.textContent = "Кирдиңиз: " + user.email;
+    }
+
+    if (signInButton) signInButton.hidden = true;
+    if (signUpButton) signUpButton.hidden = true;
+    if (signOutButton) signOutButton.hidden = false;
+    if (historyButtons) historyButtons.style.display = "flex";
+
+    setAccountStatus("Аккаунт ийгиликтүү туташты.");
+
+    if (previousUserId !== user.id) {
+      currentConversationId = null;
+      await loadConversations();
+      showWelcomeMessage();
+    }
+
+  } else {
+    if (userElement) userElement.textContent = "Аккаунтка кире элексиз.";
+
+    if (signInButton) signInButton.hidden = false;
+    if (signUpButton) signUpButton.hidden = false;
+    if (signOutButton) signOutButton.hidden = true;
+    if (historyButtons) historyButtons.style.display = "none";
+
+    currentConversationId = null;
+    renderConversationList([]);
+    clearChatDisplay();
+    showWelcomeMessage();
+  }
+}
+
+function showWelcomeMessage() {
+  clearChatDisplay();
+  addMessage(getText("initialMessage"), "bot");
+}
+
+/* ==========================================
+   АККАУНТ АЧУУ
+   ========================================== */
+
+async function signUp() {
+  if (!supabaseClient) {
+    setAccountStatus("Алгач Supabase URL жана Publishable key киргизиңиз.");
+    return;
+  }
+
+  const email = document.getElementById("authEmail")?.value.trim();
+  const password = document.getElementById("authPassword")?.value;
+
+  if (!email || !password) {
+    setAccountStatus("Электрондук почта жана сырсөздү жазыңыз.");
+    return;
+  }
+
+  if (password.length < 6) {
+    setAccountStatus("Сырсөз кеминде 6 белгиден турушу керек.");
+    return;
+  }
+
+  setAccountStatus("Аккаунт түзүлүп жатат...");
+
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    if (data.session) {
+      setAccountStatus("Аккаунт ийгиликтүү ачылды!");
+    } else {
+      setAccountStatus(
+        "Катталуу ийгиликтүү. Электрондук почтаңызды текшерип, катталууну ырастаңыз."
+      );
+    }
+
+  } catch (error) {
+    console.error("Sign up:", error);
+    setAccountStatus("Катталууда ката: " + error.message);
+  }
+}
+
+/* ==========================================
+   АККАУНТКА КИРҮҮ
+   ========================================== */
+
+async function signIn() {
+  if (!supabaseClient) {
+    setAccountStatus("Supabase туташкан жок.");
+    return;
+  }
+
+  const email = document.getElementById("authEmail")?.value.trim();
+  const password = document.getElementById("authPassword")?.value;
+
+  if (!email || !password) {
+    setAccountStatus("Электрондук почта жана сырсөздү жазыңыз.");
+    return;
+  }
+
+  setAccountStatus("Аккаунтка кирип жатат...");
+
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    setAccountStatus("Ийгиликтүү кирдиңиз!");
+
+  } catch (error) {
+    console.error("Sign in:", error);
+    setAccountStatus("Кирүүдө ката: " + error.message);
+  }
+}
+
+/* ==========================================
+   АККАУНТТАН ЧЫГУУ
+   ========================================== */
+
+async function signOut() {
+  if (!supabaseClient) return;
+
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) throw error;
+
+    setAccountStatus("Аккаунттан чыктыңыз.");
+
+  } catch (error) {
+    console.error("Sign out:", error);
+    setAccountStatus("Чыгууда ката: " + error.message);
+  }
+}
+
+/* ==========================================
+   СҮЙЛӨШҮҮЛӨРДҮН ТАРЫХЫ
+   ========================================== */
+
+async function createConversation() {
+  if (!supabaseClient || !currentUser) return null;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("conversations")
+      .insert({
+        user_id: currentUser.id,
+        title: "Жаңы сүйлөшүү"
+      })
+      .select("id")
+      .single();
+
+    if (error) throw error;
+
+    currentConversationId = data.id;
+    await loadConversations();
+
+    return data.id;
+
+  } catch (error) {
+    console.error("Create conversation:", error);
+    setAccountStatus("Сүйлөшүү түзүүдө ката: " + error.message);
+    return null;
+  }
+}
+
+async function ensureConversation() {
+  if (!currentUser) return null;
+
+  if (currentConversationId) {
+    return currentConversationId;
+  }
+
+  return await createConversation();
+}
+
+async function loadConversations() {
+  if (!supabaseClient || !currentUser) return;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("conversations")
+      .select("id,title,created_at")
+      .eq("user_id", currentUser.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    renderConversationList(data || []);
+
+  } catch (error) {
+    console.error("Load conversations:", error);
+    setAccountStatus("Сүйлөшүүлөрдү жүктөөдө ката: " + error.message);
+  }
+}
+
+function renderConversationList(conversations) {
+  const list = document.getElementById("conversationList");
+  if (!list) return;
+
+  list.innerHTML = "";
+
+  if (!currentUser) return;
+
+  if (!conversations.length) {
+    const empty = document.createElement("p");
+    empty.textContent = "Азырынча сүйлөшүүлөр жок.";
+    empty.style.color = "#9aa8bd";
+    list.appendChild(empty);
+    return;
+  }
+
+  conversations.forEach(conversation => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.textContent = conversation.title || "Жаңы сүйлөшүү";
+
+    if (conversation.id === currentConversationId) {
+      item.classList.add("active");
+    }
+
+    item.addEventListener("click", () => {
+      openConversation(conversation.id);
+    });
+
+    list.appendChild(item);
+  });
+}
+
+async function openConversation(conversationId) {
+  if (!supabaseClient || !currentUser) return;
+  if (isLoadingHistory) return;
+
+  isLoadingHistory = true;
+  currentConversationId = conversationId;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("messages")
+      .select("role,content,created_at")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    clearChatDisplay();
+
+    if (!data || data.length === 0) {
+      addMessage(getText("initialMessage"), "bot");
+    } else {
+      data.forEach(message => {
+        const role = message.role === "user" ? "user" : "bot";
+        addMessage(message.content, role);
+      });
+    }
+
+    await loadConversations();
+
+  } catch (error) {
+    console.error("Open conversation:", error);
+    setAccountStatus("Сүйлөшүүнү ачууда ката: " + error.message);
+  } finally {
+    isLoadingHistory = false;
+  }
+}
+
+async function startNewConversation() {
+  if (!currentUser) {
+    setAccountStatus("Сүйлөшүү тарыхын колдонуу үчүн аккаунтка кириңиз.");
+    return;
+  }
+
+  currentConversationId = null;
+  clearSelectedImage();
+  showWelcomeMessage();
+  await createConversation();
+}
+
+async function saveMessage(role, content) {
+  if (!supabaseClient || !currentUser || !content) return;
+
+  const conversationId = await ensureConversation();
+
+  if (!conversationId) {
+    throw new Error("Сүйлөшүү түзүлгөн жок.");
+  }
+
+  const { error } = await supabaseClient
+    .from("messages")
+    .insert({
+      conversation_id: conversationId,
+      role,
+      content
+    });
+
+  if (error) throw error;
+}
+
+/* ==========================================
+   ҮН МЕНЕН ЖООП БЕРҮҮ
+   ========================================== */
+
 async function speakText(text) {
   try {
     const response = await fetch(SPEAK_URL, {
@@ -213,10 +649,15 @@ async function speakText(text) {
     audio.onerror = () => URL.revokeObjectURL(audioUrl);
 
     await audio.play();
+
   } catch (error) {
     console.error("KYRGYZ AI Voice:", error);
   }
 }
+
+/* ==========================================
+   СҮРӨТТҮ ТАЗАЛОО
+   ========================================== */
 
 function clearSelectedImage() {
   selectedImage = null;
@@ -230,6 +671,10 @@ function clearSelectedImage() {
   if (preview) preview.style.display = "none";
 }
 
+/* ==========================================
+   AI ЧАТКА БИЛДИРҮҮ ЖӨНӨТҮҮ
+   ========================================== */
+
 async function sendMessage(event) {
   event.preventDefault();
 
@@ -242,22 +687,23 @@ async function sendMessage(event) {
 
   let message = input.value.trim();
 
-  // Суроо негизги талаада жок болсо, сүрөттүн суроо талаасын колдонуу
   if (!message && selectedImage && promptInput) {
     message = promptInput.value.trim();
   }
 
-  // Сүрөт гана тиркелсе, автоматтык суроо берүү
   if (!message && selectedImage) {
-    message = translations[currentLang].imagePrompt;
+    message = getText("imagePrompt");
   }
 
   if (!message && !selectedImage) {
-    status.textContent = translations[currentLang].empty;
+    status.textContent = getText("empty");
     return;
   }
 
   const imageToSend = selectedImage;
+  const messageForHistory = imageToSend
+    ? message + " [Сүрөт тиркелген]"
+    : message;
 
   if (imageToSend) {
     addUserImageMessage(message, imageToSend);
@@ -267,9 +713,20 @@ async function sendMessage(event) {
 
   input.value = "";
   button.disabled = true;
-  status.textContent = translations[currentLang].sending;
+  status.textContent = getText("sending");
 
   try {
+    if (currentUser) {
+      try {
+        await saveMessage("user", messageForHistory);
+      } catch (saveError) {
+        console.error("Save user message:", saveError);
+        setAccountStatus(
+          "Билдирүү базага сакталган жок: " + saveError.message
+        );
+      }
+    }
+
     const payload = { message };
 
     if (imageToSend) {
@@ -296,24 +753,42 @@ async function sendMessage(event) {
 
     addMessage(reply, "bot");
 
+    if (currentUser) {
+      try {
+        await saveMessage("assistant", reply);
+      } catch (saveError) {
+        console.error("Save assistant message:", saveError);
+        setAccountStatus(
+          "AI жообу базага сакталган жок: " + saveError.message
+        );
+      }
+
+      await loadConversations();
+    }
+
     if (imageToSend) {
       clearSelectedImage();
       if (promptInput) promptInput.value = "";
     }
 
     status.textContent = "";
-
     speakText(reply);
 
   } catch (error) {
     console.error("KYRGYZ AI error:", error);
+
     status.textContent =
-      translations[currentLang].error + " " + error.message;
+      getText("error") + " " + error.message;
+
   } finally {
     button.disabled = false;
     input.focus();
   }
 }
+
+/* ==========================================
+   ҮНДҮ ТЕКСТКЕ АЙЛАНДЫРУУ
+   ========================================== */
 
 async function startVoice() {
   const voiceBtn = document.getElementById("voiceBtn");
@@ -339,7 +814,10 @@ async function startVoice() {
 
     let options = {};
 
-    if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+    if (
+      window.MediaRecorder &&
+      MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+    ) {
       options.mimeType = "audio/webm;codecs=opus";
     }
 
@@ -394,7 +872,6 @@ async function startVoice() {
         }
 
         const input = document.getElementById("userInput");
-
         if (!input) return;
 
         input.value = data.text.trim();
@@ -417,7 +894,9 @@ async function startVoice() {
   }
 }
 
-/* СҮРӨТ ТИРКӨӨ — КАДИМКИ ЧАТКА */
+/* ==========================================
+   СҮРӨТ ТИРКӨӨ
+   ========================================== */
 
 function setupImageUpload() {
   const imageBtn = document.getElementById("imageBtn");
@@ -429,7 +908,6 @@ function setupImageUpload() {
 
   if (!imageBtn || !imageInput || !preview || !previewImage) return;
 
-  // Өзүнчө талдоо баскычы колдонулбайт
   if (analyzeBtn) analyzeBtn.style.display = "none";
 
   imageBtn.addEventListener("click", () => {
@@ -473,6 +951,10 @@ function setupImageUpload() {
   }
 }
 
+/* ==========================================
+   БАРДЫК ФУНКЦИЯЛАРДЫ ИШКЕ КОШУУ
+   ========================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("chatForm");
 
@@ -486,6 +968,32 @@ document.addEventListener("DOMContentLoaded", () => {
     voiceBtn.addEventListener("click", startVoice);
   }
 
+  const signInBtn = document.getElementById("signInBtn");
+  if (signInBtn) {
+    signInBtn.addEventListener("click", signIn);
+  }
+
+  const signUpBtn = document.getElementById("signUpBtn");
+  if (signUpBtn) {
+    signUpBtn.addEventListener("click", signUp);
+  }
+
+  const signOutBtn = document.getElementById("signOutBtn");
+  if (signOutBtn) {
+    signOutBtn.addEventListener("click", signOut);
+  }
+
+  const newConversationBtn = document.getElementById("newConversationBtn");
+  if (newConversationBtn) {
+    newConversationBtn.addEventListener("click", startNewConversation);
+  }
+
+  const refreshBtn = document.getElementById("refreshConversationsBtn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", loadConversations);
+  }
+
   setupImageUpload();
   setLang("ky");
+  initializeSupabase();
 });
