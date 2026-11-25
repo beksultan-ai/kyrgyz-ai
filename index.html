@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body class="is-intro">
   <div id="siteIntro" class="site-intro">
@@ -23,6 +23,7 @@
       <p class="intro-tag">Your World. Your AI.</p>
     </div>
     <div class="intro-bar"><i></i></div>
+    <p class="intro-hint">Кирүү үчүн басыңыз · Tap to enter</p>
   </div>
   <div class="bg-glow glow-1"></div>
   <div class="bg-glow glow-2"></div>
@@ -86,8 +87,8 @@
     </div>
     <div class="cards-grid">
       <article class="info-card"><div class="card-icon">01</div><h3 id="businessTitle">Бизнес үчүн AI</h3><p id="businessText">Иш процесстерин автоматташтыруу, акылдуу аналитика жана компаниялар үчүн жекелештирилген AI чечимдери.</p></article>
-      <article class="info-card"><div class="card-icon">02</div><h3 id="peopleTitle">Ар бир адам үчүн</h3><p id="peopleText">Күнүмдүк суроолорго жооп, идеялар, окуу жана жеке жардамчы. AI ар кимге жеткиликтүү болушу керек.</p></article>
-      <article class="info-card"><div class="card-icon">03</div><h3 id="globalTitle">Дүйнөгө ачык</h3><p id="globalText">Кыргызча, орусча жана англисче баарлашуу. Глобалдык рынокко чыгуу жана эл аралык өнөктөштүк.</p></article>
+      <article class="info-card"><div class="card-icon">02</div><h3 id="peopleTitle">Ар бир адам үчүн</h3><p id="peopleText">Күнүмдүк суроолорго жооп, идеялар, окуу жана жеке жардамчы.</p></article>
+      <article class="info-card"><div class="card-icon">03</div><h3 id="globalTitle">Дүйнөгө ачык</h3><p id="globalText">Кыргызча, орусча жана англисче баарлашуу.</p></article>
     </div>
   </section>
   <section class="section tech-section" id="technology">
@@ -97,10 +98,10 @@
       <p class="section-desc">Текст, үн, сүрөт жана тарыхый эс тутум — бирдиктүү платформада.</p>
     </div>
     <div class="tech-grid">
-      <div class="tech-item"><div class="tech-label">Core</div><h4>Large Language Model</h4><p>Көп тилдүү интеллект. Кыргыз, орус жана англис тилдеринде терең түшүнүү.</p></div>
-      <div class="tech-item"><div class="tech-label">Voice</div><h4>Speech AI</h4><p>Үндөн текстке (ASR) жана тексттен үнгө (TTS).</p></div>
-      <div class="tech-item"><div class="tech-label">Vision</div><h4>Image Understanding</h4><p>Сүрөттөрдү талдоо жана сүрөттөмө.</p></div>
-      <div class="tech-item"><div class="tech-label">Memory</div><h4>Conversation History</h4><p>Колдонуучунун тарыхы жана аккаунт системасы.</p></div>
+      <div class="tech-item"><div class="tech-label">Core</div><h4>Large Language Model</h4><p>Көп тилдүү интеллект.</p></div>
+      <div class="tech-item"><div class="tech-label">Voice</div><h4>Speech AI</h4><p>Үндөн текстке жана тексттен үнгө.</p></div>
+      <div class="tech-item"><div class="tech-label">Vision</div><h4>Image Understanding</h4><p>Сүрөттөрдү талдоо.</p></div>
+      <div class="tech-item"><div class="tech-label">Memory</div><h4>Conversation History</h4><p>Сүйлөшүү тарыхы жана аккаунт.</p></div>
     </div>
   </section>
   <section class="section assistant-section" id="assistant">
@@ -150,19 +151,13 @@
       <div id="accountStatus"></div>
       <div id="accountUser"></div>
       <div class="history-actions"><div id="conversationList"></div></div>
-      <p class="account-note">Аккаунт менен сүйлөшүүлөрүңүз сакталат.</p>
     </div>
   </section>
   <section class="section vision-section" id="vision">
     <div class="vision-card">
       <span class="section-kicker">КЕЛЕЧЕК & ӨСҮҮ</span>
       <h2 id="closingTitle">Бирге келечекке кадам таштайлы.</h2>
-      <p>KYRGYZ AI — бул жөн гана чатбот эмес. Бул Кыргызстандан чыккан <strong>глобалдык AI компаниясы</strong>.</p>
-      <div class="vision-points">
-        <div class="vision-point"><strong>Sovereign AI</strong><span>Өз алдынча технологиялык негиз</span></div>
-        <div class="vision-point"><strong>Global Reach</strong><span>Көп тилдүү стратегия</span></div>
-        <div class="vision-point"><strong>Scalable Platform</strong><span>API жана enterprise</span></div>
-      </div>
+      <p>KYRGYZ AI — Кыргызстандан чыккан <strong>глобалдык AI компаниясы</strong>.</p>
       <a href="#assistant" class="btn-primary" id="closingButton">Азыр баштоо</a>
     </div>
   </section>
@@ -170,16 +165,16 @@
     <div class="footer-top">
       <div class="footer-brand"><div class="brand-mark small">K</div><div><strong>KYRGYZ AI</strong><span>Your World. Your AI.</span></div></div>
       <div class="footer-links">
-        <a href="#about">Компания</a><a href="#technology">Технология</a><a href="#assistant">Платформа</a><a href="#vision">Келечек</a>
+        <a href="#about">Компания</a><a href="#technology">Технология</a><a href="#assistant">Платформа</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2026 KYRGYZ AI. Бардык укуктар корголгон.</p>
+      <p>© 2026 KYRGYZ AI</p>
       <p class="footer-note">Built in Kyrgyzstan · Designed for the World</p>
     </div>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="intro.js"></script>
+  <script src="intro.js?v=2"></script>
   <script src="script.js"></script>
 </body>
 </html>
