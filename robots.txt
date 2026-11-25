@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://beksultan-ai.github.io/kyrgyz-ai/sitemap.xml
