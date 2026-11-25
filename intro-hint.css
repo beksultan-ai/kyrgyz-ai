@@ -1,0 +1,16 @@
+/* loaded via style.css or link - standalone fallback */
+.intro-hint{
+  position:absolute;
+  bottom:6%;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:3;
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:.5px;
+  color:#c4b5fd;
+  white-space:nowrap;
+  animation:fadeUp .9s .6s both;
+  cursor:pointer;
+}
+.site-intro{cursor:pointer}
